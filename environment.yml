@@ -1,0 +1,13 @@
+name: Movie_Sentiment_Analysis
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - tensorflow=2.16.1
+  - nltk
+  - numpy
+  - pandas
+  - pip
+  - pip:
+    - stopwords
