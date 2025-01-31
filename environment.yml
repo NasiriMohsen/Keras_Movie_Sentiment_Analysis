@@ -4,10 +4,20 @@ channels:
   - conda-forge
 dependencies:
   - python=3.10
-  - tensorflow=2.16.1
-  - nltk
-  - numpy
-  - pandas
   - pip
   - pip:
-    - stopwords
+      - stopwords
+      - vaderSentiment
+      - nltk
+      - tensorflow==2.16.1
+      - keras
+      - numpy
+      - seaborn
+      - scikit-learn
+      - matplotlib
+      - pyenchant
+      - kagglehub
+      - keras-tuner
+  - spacy
+  - pip:
+      - https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.5.0/en_core_web_lg-3.5.0.tar.gz

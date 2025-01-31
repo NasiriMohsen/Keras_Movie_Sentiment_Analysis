@@ -23,6 +23,7 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.optimizers import Nadam
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.model_selection import train_test_split
 
 # Essentials libraries
 import pandas as pd 
@@ -33,6 +34,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 import warnings
+import kagglehub
 from IPython.display import clear_output
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category = DeprecationWarning)
@@ -44,17 +46,20 @@ learning_rate = 0.00075
 epochs = 10
 batch_size = 32
 preproccesing_batch_size = 2000
+dataset_split = 0.03666 #0.073323
 
 # Path variables
-model_path = '110k.keras'
-model_history_path = '110k_history.json'
-tokenizer_path = '110k.pickle'
+model_path = '131k.keras'
+model_history_path = '131k_history.json'
+tokenizer_path = '131k.pickle'
 
-main_dataset_path = '110k_dataset.csv'
+main_dataset_path = '136k_dataset.csv'
 
+custom_imdb_data_path = 'Custome_IMDB_data.csv'
 rotten_tomatoes_data_path = 'Rotton_Tomatoes_data.csv'
 imdb_data_path = 'Stanford_IMDB_data.csv'
 sst2_data_path = 'Stanford_SST2_data.csv'
+arize_data_path = 'Arize_data.csv'
 
 dataset_files = [
     {'variable_names': 'stanford_imdb_train', 'path': 'datasets_raw/Stanford_IMDB_train.csv', 'url': "hf://datasets/stanfordnlp/imdb/plain_text/train-00000-of-00001.parquet"},
@@ -63,7 +68,9 @@ dataset_files = [
     {'variable_names': 'stanford_sst2_validation', 'path': 'datasets_raw/SST2_validation.csv', 'url': "hf://datasets/stanfordnlp/sst2/data/validation-00000-of-00001.parquet"},
     {'variable_names': 'rotten_tomatoes_train', 'path': 'datasets_raw/Rotten_Tomatoes__train.csv', 'url': "hf://datasets/cornell-movie-review-data/rotten_tomatoes/train.parquet"},
     {'variable_names': 'rotten_tomatoes_validation', 'path': 'datasets_raw/Rotten_Tomatoes_validation.csv', 'url': "hf://datasets/cornell-movie-review-data/rotten_tomatoes/validation.parquet"},
-    {'variable_names': 'rotten_tomatoes_test', 'path': 'datasets_raw/Rotten_Tomatoes_test.csv', 'url': "hf://datasets/cornell-movie-review-data/rotten_tomatoes/test.parquet"}
+    {'variable_names': 'rotten_tomatoes_test', 'path': 'datasets_raw/Rotten_Tomatoes_test.csv', 'url': "hf://datasets/cornell-movie-review-data/rotten_tomatoes/test.parquet"},
+    {'variable_names': 'arize_train', 'path': 'datasets_raw/Arize_train.csv', 'url': "hf://datasets/arize-ai/movie_reviews_with_context_drift/validation.csv"},
+    {'variable_names': 'arize_validation', 'path': 'datasets_raw/Arize_validation.csv', 'url': "hf://datasets/arize-ai/movie_reviews_with_context_drift/training.csv"}
 ]
 
 # Text processing variables
@@ -116,13 +123,23 @@ def load_datasets():
             print(f"\x1b[32m {dataset_file['variable_names']} has been loaded! \x1b[0m")
         else:
             print(f"\x1b[31m {dataset_file['variable_names']} is downloading! \x1b[0m")
-            globals()[dataset_file['variable_names']] = pd.read_parquet(dataset_file['url'])
+            if dataset_file['url'].endswith('.csv'):
+                globals()[dataset_file['variable_names']] = pd.read_csv(dataset_file['url'])
+            else:
+                globals()[dataset_file['variable_names']] = pd.read_parquet(dataset_file['url'])
             globals()[dataset_file['variable_names']].to_csv(dataset_file['path'], index = False)
-            print(f"\x1b[32m {dataset_file['variable_names']} has been loaded! \x1b[0m")
+            print(f"\x1b[32m {dataset_file['variable_names']} has been loaded! \x1b[0m")   
+    if os.path.exists('datasets_raw/Custom.csv'):
+        custom_dataset = pd.read_csv('datasets_raw/Custom.csv')
+        print(f"\x1b[32m custom has been loaded! \x1b[0m")   
+    else:
+        print(f"\x1b[31m custom is downloading! \x1b[0m")
+        path = kagglehub.dataset_download("itsabba3/imdb-rating")
+        custom_dataset = pd.read_csv(os.path.join(path, os.listdir(path)[0]))
+        custom_dataset.to_csv('datasets_raw/Custom.csv', index = False)
+        print(f"\x1b[32m custom has been loaded! \x1b[0m")  
     if os.path.exists('datasets_processed/' + rotten_tomatoes_data_path):
         rotten_tomatoes_data = pd.read_csv('datasets_processed/' + rotten_tomatoes_data_path)
-        rotten_tomatoes_data = rotten_tomatoes_data.dropna()
-        rotten_tomatoes_data.to_csv("datasets_processed/" + rotten_tomatoes_data_path, index = False)
         print(f"\x1b[32m rotten_tomatoes_data has been loaded! \x1b[0m")
     else:
         print(f"\x1b[31m rotten_tomatoes_data is processing! \x1b[0m")
@@ -136,8 +153,6 @@ def load_datasets():
         print(f"\x1b[32m rotten_tomatoes_data has been loaded! \x1b[0m")
     if os.path.exists('datasets_processed/' + imdb_data_path):
         stanford_imdb_data = pd.read_csv('datasets_processed/' + imdb_data_path)
-        stanford_imdb_data = stanford_imdb_data.dropna()
-        stanford_imdb_data.to_csv("datasets_processed/" + imdb_data_path, index = False)
         print(f"\x1b[32m stanford_imdb_data has been loaded! \x1b[0m")
     else:
         print(f"\x1b[31m stanford_imdb_data is processing! \x1b[0m")
@@ -151,8 +166,6 @@ def load_datasets():
         print(f"\x1b[32m stanford_imdb_data has been loaded! \x1b[0m")
     if os.path.exists('datasets_processed/' + sst2_data_path):
         stanford_sst2_data = pd.read_csv('datasets_processed/' + sst2_data_path)
-        stanford_sst2_data = stanford_sst2_data.dropna()
-        stanford_sst2_data.to_csv("datasets_processed/" + sst2_data_path, index = False)
         print(f"\x1b[32m sst2_data has been loaded! \x1b[0m")
     else:
         print(f"\x1b[31m sst2_data is processing! \x1b[0m")
@@ -165,19 +178,49 @@ def load_datasets():
         stanford_sst2_data = stanford_sst2_data.dropna()
         stanford_sst2_data.to_csv("datasets_processed/" + sst2_data_path, index = False)
         print(f"\x1b[32m sst2_data has been loaded! \x1b[0m")
+    if os.path.exists('datasets_processed/' + arize_data_path):
+        arize_data = pd.read_csv('datasets_processed/' + arize_data_path)
+        print(f"\x1b[32m arize_data has been loaded! \x1b[0m")
+    else:
+        print(f"\x1b[31m arize_data is processing! \x1b[0m")
+        arize_data = pd.concat([arize_validation, arize_train])
+        arize_data = arize_data[["text","label"]]
+        arize_data.columns = ['review', 'rate'] + arize_data.columns.tolist()[2:]
+        arize_data['rate'] = arize_data['rate'].replace({'negative': 0, 'positive': 1})
+        arize_data = arize_data.drop_duplicates()
+        #arize_data['review'] = arize_data['review'].map(process_text)
+        arize_data['review'] = batch_process_texts(arize_data['review'].tolist())
+        arize_data = arize_data.dropna()
+        arize_data.to_csv("datasets_processed/" + arize_data_path, index = False)
+        print(f"\x1b[32m arize_data has been loaded! \x1b[0m")
+    if os.path.exists('datasets_processed/' + custom_imdb_data_path):
+        custom_data = pd.read_csv('datasets_processed/' + custom_imdb_data_path)
+        print(f"\x1b[32m custom_data has been loaded! \x1b[0m")
+    else:
+        print(f"\x1b[31m custom_data is processing! \x1b[0m")
+        custom_data = custom_dataset.drop(columns=['Movie_ID'])
+        custom_data.columns = ['review', 'rate'] + custom_data.columns.tolist()[2:]
+        custom_data['rate'] = custom_data['rate'].apply(lambda x: 0 if 1 <= x <= 3 else 1 if 8 <= x <= 10 else None)
+        custom_data = custom_data.dropna(subset=['rate'])
+        custom_data = custom_data.drop_duplicates()
+        #custom_data['review'] = custom_data['review'].map(process_text)
+        custom_data['review'] = batch_process_texts(custom_data['review'].tolist())
+        custom_data = custom_data.dropna()
+        custom_data.to_csv('datasets_processed/' + custom_imdb_data_path, index = False)
+        print(f"\x1b[32m custom_data has been loaded! \x1b[0m")
     if os.path.exists('datasets_processed/' + main_dataset_path):
         all_data = pd.read_csv('datasets_processed/' + main_dataset_path)
-        all_data = all_data.dropna()
-        all_data.to_csv("datasets_processed/" + main_dataset_path, index = False)
         print(f"\x1b[32m {main_dataset_path} has been loaded! \x1b[0m")
     else:
         print(f"\x1b[31m {main_dataset_path} is processing! \x1b[0m")
-        all_data = pd.concat([stanford_imdb_data, stanford_sst2_data])
-        all_data = all_data.groupby('rate').apply(lambda x: x.sample(all_data["rate"].value_counts().min())).reset_index(drop = True)
+        all_data = pd.concat([stanford_imdb_data, stanford_sst2_data, rotten_tomatoes_data, arize_data, custom_data])
         all_data = all_data.dropna()
+        all_data = all_data.groupby('rate').apply(lambda x: x.sample(all_data["rate"].value_counts().min())).reset_index(drop = True)
+        all_data = all_data.sample(frac = 1, random_state = 42).reset_index(drop = True)
         all_data.to_csv("datasets_processed/" + main_dataset_path, index = False)
         print(f"\x1b[32m {main_dataset_path} has been loaded! \x1b[0m")
-    return all_data, rotten_tomatoes_data
+    train, test = train_test_split(all_data, test_size = dataset_split, random_state = 42)
+    return all_data, train, test
 
 # Function for loading the tokenizer 
 def load_tokenizer(dataset):
@@ -310,7 +353,10 @@ def predict_sentiment(model, tokenizer):
     print(f"\x1b[36m The prediction is \x1b[33m {round(prediction*100, 2)}\x1b[36m and the sentiment of the movie review is: \x1b[0m", "\x1b[32mPositive \x1b[0m" if prediction > 0.5 else "\x1b[31mNegative \x1b[0m")
 
 # Datasets setup
-dataset, validation_dataset = load_datasets()
+all_data, dataset, validation_dataset = load_datasets()
+print(f"\x1b[33m The whole dataset shape is: \x1b[0m{all_data.shape}")
+print(f"\x1b[33m The training dataset shape is: \x1b[0m{dataset.shape}")
+print(f"\x1b[33m The validation dataset shape is: \x1b[0m{validation_dataset.shape}")
 tokenizer, x_train, y_train = load_tokenizer(dataset)
 y_val = np.array(validation_dataset['rate'].values)
 x_val = pad_sequences(tokenizer.texts_to_sequences(validation_dataset['review']), maxlen = max_len, padding='post')
@@ -318,7 +364,7 @@ x_val = pad_sequences(tokenizer.texts_to_sequences(validation_dataset['review'])
 # Model setup
 model, history = load_model(tokenizer, x_train, y_train, x_val, y_val)
 model_history(history)
-validation_labels, validation_predecited_labels = model_validation(model, tokenizer, validation_dataset)
+validation_labels, validation_predecited_labels = model_validation(model, tokenizer,  validation_dataset)
 incorrect_predictions(validation_dataset, validation_labels, validation_predecited_labels)
 
 # Loop
