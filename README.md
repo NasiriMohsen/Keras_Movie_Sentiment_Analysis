@@ -18,4 +18,4 @@ Follow these steps to set up the environment:
     ```
 
 ## Usage
-Once the environment is set up, you can run your scripts as needed.
+Once the environment is set up, you can run Main.py or Main.ipynb.
