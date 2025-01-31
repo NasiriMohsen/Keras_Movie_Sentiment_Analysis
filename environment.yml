@@ -4,20 +4,21 @@ channels:
   - conda-forge
 dependencies:
   - python=3.10
+  - pandas
+  - numpy
+  - seaborn=0.13.2
+  - matplotlib=3.10.0
+  - ipython
+  - scikit-learn
+  - keras
+  - nltk
+  - spacy
+  - regex
+  - kagglehub
   - pip
   - pip:
-      - stopwords
-      - vaderSentiment
-      - nltk
       - tensorflow==2.16.1
-      - keras
-      - numpy
-      - seaborn
-      - scikit-learn
-      - matplotlib
+      - keras==3.7.0
       - pyenchant
-      - kagglehub
-      - keras-tuner
-  - spacy
-  - pip:
-      - https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.5.0/en_core_web_lg-3.5.0.tar.gz
+      - vaderSentiment
+      - https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3-none-any.whl
