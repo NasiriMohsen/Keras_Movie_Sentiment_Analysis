@@ -60,8 +60,6 @@ Follow these steps to set up the environment:
 - Combined datasets from Stanford Sentiment Treebank (SST-2), Stanford IMDB, Rotten Tomatoes, Arize AI, and IMDB Rating Dataset.
 
 ## Results
-
-### Usage
 Once the environment is set up, you can run `Main.py` or `Main.ipynb`
 
 ### Challenges
