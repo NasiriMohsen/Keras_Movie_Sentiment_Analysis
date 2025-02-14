@@ -68,6 +68,10 @@ Once the environment is set up, you can run `Main.py` or `Main.ipynb`
 - Tuning model parameters.
 
 ### Comparison
+- Optimizers: Nadam optimizer performed best.
+- Model Architecture: Bidirectional LSTM outperformed simpler architectures.
+- Regularization Methods: Dropout layers were effective in avoiding overfitting.
+- Preprocessing Strategies: Optimized to reduce computational overhead.
 
 ## References
 - Socher, R., Perelygin, A., Wu, J., Chuang, J., Manning, C. D., Ng, A., & Potts, C. (2013). Recursive deep models for semantic compositionality over a sentiment treebank. Proceedings of the 2013 Conference on Empirical Methods in Natural Language Processing, 1631-1642. Association for Computational Linguistics. https://www.aclweb.org/anthology/D13-1170
@@ -75,7 +79,3 @@ Once the environment is set up, you can run `Main.py` or `Main.ipynb`
 - Pang, B., & Lee, L. (2005). Seeing stars: Exploiting class relationships for sentiment categorization with respect to rating scales. Proceedings of the Association for Computational Linguistics (ACL). https://huggingface.co/datasets/cornell-movie-review-data/rotten_tomatoes
 - Arize AI. (n.d.). Movie reviews with context drift [Dataset]. Hugging Face. Retrieved January 29, 2025, from https://huggingface.co/datasets/arize-ai/movie_reviews_with_context_drift
 - itsabba3. (n.d.). IMDB rating dataset [Dataset]. Kaggle. Retrieved January 29, 2025, from https://www.kaggle.com/datasets/itsabba3/imdb-rating
-- Optimizers: Nadam optimizer performed best.
-- Model Architecture: Bidirectional LSTM outperformed simpler architectures.
-- Regularization Methods: Dropout layers were effective in avoiding overfitting.
-- Preprocessing Strategies: Optimized to reduce computational overhead.
