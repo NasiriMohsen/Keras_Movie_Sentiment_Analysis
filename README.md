@@ -1,25 +1,3 @@
-# Keras_Movie_Sentiment_Analysis
-Movie review sentiment analysis using Keras and Stanford datasets
-
-## Prerequisites
-Make sure to install Anaconda before proceeding.
-
-## Setup
-Follow these steps to set up the environment:
-
-1. **Create the Environment**:
-    ```bash
-    conda env create -f environment.yml
-    ```
-
-2. **Activate the Environment**:
-    ```bash
-    conda activate Movie_Sentiment_Analysis
-    ```
-
-## Usage
-Once the environment is set up, you can run Main.py or Main.ipynb.
-
 # Sentiment Analysis on Movie Reviews
 
 ## Project Overview
@@ -31,8 +9,8 @@ This project focuses on developing a deep learning-based Natural Language Proces
 The objectives of this project are to:
 - Collect movie review data from publicly available datasets.
 - Preprocess the data using various NLP techniques.
-- Train a binary classification model using a bidirectional LSTM network.
-- Evaluate the model's performance using accuracy, precision, recall, F1-score, and confusion matrices.
+- Train a binary classification model.
+- Evaluate the model's performance.
 - Provide an interactive feature for real-time sentiment prediction on user-input movie reviews.
 
 ## Methodology
@@ -48,10 +26,9 @@ The objectives of this project are to:
 
 ### Model Development
 - Use an embedding layer, spatial dropout layer, bidirectional LSTM layer, dropout layer, and dense output layer.
-- Train the model to capture bidirectional context for sentiment analysis.
 
 ### Model Evaluation
-- Evaluate performance using metrics like accuracy, precision, recall, and F1-score.
+- Evaluate performance using another dataset
 - Analyze errors and visualize training history.
 - Provide an interactive feature for user-based evaluation.
 
@@ -59,6 +36,19 @@ The objectives of this project are to:
 
 ### Environment
 - Developed using Python 3.10 and TensorFlow 2.16 within an Anaconda virtual environment.
+
+### Setup
+Follow these steps to set up the environment:
+
+1. **Create the Environment**:
+    ```bash
+    conda env create -f environment.yml
+    ```
+
+2. **Activate the Environment**:
+    ```bash
+    conda activate Movie_Sentiment_Analysis
+    ```
 
 ### Libraries
 - **NLP Libraries**: NLTK, SpaCy, Regular Expressions (re), Enchant
@@ -71,24 +61,16 @@ The objectives of this project are to:
 
 ## Results
 
-### Performance
-- High accuracy and performance on both training and validation datasets.
-- Detailed evaluation metrics and confusion matrices included.
+### Usage
+Once the environment is set up, you can run `Main.py` or `Main.ipynb`
+
+### Challenges
+- Managing hardware and computational limitations.
+- Handling neutral sentiments.
+- Tuning model parameters.
 
 ### Comparison
 - Optimizers: Nadam optimizer performed best.
 - Model Architecture: Bidirectional LSTM outperformed simpler architectures.
 - Regularization Methods: Dropout layers were effective in avoiding overfitting.
 - Preprocessing Strategies: Optimized to reduce computational overhead.
-
-## Challenges
-- Managing hardware and computational limitations.
-- Handling neutral sentiments.
-- Tuning model parameters.
-
-## Conclusion
-The project successfully developed a sentiment analysis model with a bidirectional LSTM architecture, providing valuable insights into the process and ways to enhance it.
-
-## GitHub Link
-You can access the project on GitHub: [Sentiment Analysis on Movie Reviews](https://github.com/NasiriMohsen/Keras_Movie_Sentiment_Analysis)
-
